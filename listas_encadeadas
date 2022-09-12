@@ -1,0 +1,107 @@
+#include <chrono>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+using namespace std::chrono;
+
+typedef duration<long, ratio<1, 1000000000>> d;
+typedef struct lista {
+  int num;
+  struct lista *prox;
+} lista;
+
+lista *criaLista() {
+  lista *list = (lista *)malloc(sizeof(lista));
+  if (list != NULL) {
+    list = NULL;
+  }
+  return list;
+}
+
+lista *preencheLista(lista *l, int x) {
+  if (l == NULL) {
+    lista *l_aux = (lista *)malloc(sizeof(lista));
+    l_aux->num = x;
+    l_aux->prox = NULL;
+    return l_aux;
+  } else {
+    l->prox = preencheLista(l->prox, x);
+    return l;
+  }
+}
+
+void copiaLista(lista *l, int vetor[], int i) {
+  if (l != NULL) {
+    vetor[i] = l->num;
+    i++;
+    if (l->prox != NULL) {
+      copiaLista(l->prox, vetor, i);
+    }
+  }
+}
+
+lista *reverteLista(lista *l, int vetor[], int i) {
+  if (l != NULL) {
+    lista *l_aux = (lista *)malloc(sizeof(lista));
+    l_aux->num = vetor[i];
+    i--;
+    if (l->prox != NULL) {
+      l->prox = reverteLista(l->prox, vetor, i);
+    }
+    return l_aux;
+  }
+  return l;
+}
+
+void encontraMeio(lista *l, int cont) {
+  if (cont < 2) {
+    cont++;
+    encontraMeio(l->prox, cont);
+  } else {
+    cout << "Item central da lista: " << l->num << endl;
+  }
+}
+
+void limpaMemoria(lista *l) {
+  if (l->prox != NULL) {
+    limpaMemoria(l->prox);
+  }
+  free(l);
+}
+
+int main() {
+  int y[4];
+  srand(time(0));
+  auto start = high_resolution_clock::now();
+  lista *l = criaLista();
+  for (int i = 0; i < 4; i++) {
+    int x = 1 + rand() % 1000000;
+    l = preencheLista(l, x);
+  }
+  auto end = high_resolution_clock::now();
+  cout << "Tempo para criar a lista: "
+       << duration_cast<nanoseconds>(end - start).count() << " nanosegundos"
+       << endl;
+  start = high_resolution_clock::now();
+  encontraMeio(l, 1);
+  end = high_resolution_clock::now();
+  cout << "Tempo para encontrar o item central da lista: "
+       << duration_cast<nanoseconds>(end - start).count() << " nanosegundos"
+       << endl;
+  start = high_resolution_clock::now();
+  copiaLista(l, y, 0);
+  l = reverteLista(l, y, sizeof(y));
+  end = high_resolution_clock::now();
+  cout << "Tempo para reverter a lista: "
+       << duration_cast<nanoseconds>(end - start).count() << " nanosegundos"
+       << endl;
+  start = high_resolution_clock::now();
+  limpaMemoria(l);
+  end = high_resolution_clock::now();
+  cout << "Tempo para limpar a lista: "
+       << duration_cast<nanoseconds>(end - start).count() << " nanosegundos"
+       << endl;
+
+  return 0;
+}
